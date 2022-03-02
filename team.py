@@ -62,7 +62,7 @@ kante = Player('Kante', 7, 'midfielder', 99)
 
 chelsea = Team('Chelsea')
 
-lewa = Player('Lewandowski', 9, 'forward', 93)
+lewa = Player('Lewandowski', 9, 'forward', 91)
 muller = Player('Muller', 25, 'midfielder', 94)
 davies = Player('Davies', 19, 'cb', 90)
 neuer = Player('Neuer', 1, 'goalkeeper', 90)
