@@ -14,4 +14,3 @@ class Player:
 
     def get_info(self):
         return self.surname, f'Number is {self.number}', f"Rating is {self.default_score}"
-

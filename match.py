@@ -12,15 +12,16 @@ class Match:
         self.match = []
         if type(Team) == list:
             self.group.extend(Team)
+        else:
+            return 'please, enter teams in list'
         if len(Team) > 2:
             self.match.append(random.choice(self.group))
             self.match.append(random.choice(self.group))
-        else:
-            self.match.extend(self.group)
-        if self.match[0] == self.match[1]:
             while self.match[0] == self.match[1]:
                 self.match.pop(1)
                 self.match.append(random.choice(self.group))
+        else:
+            self.match.extend(self.group)
         if self.match[0].get_final_score() > self.match[1].get_final_score():
             self.winner = self.match[0]
         elif self.match[0].get_final_score() < self.match[1].get_final_score():

@@ -30,6 +30,10 @@ class Team:
                 self.roster[i], self.roster[j] = self.roster[j], self.roster[i]
                 j += 1
         j = 0
+        for i in range(len(self.roster)):
+            for j in range(len(self.roster)):
+                if self.roster[j].default_score > self.roster[i].default_score and self.roster[j].position == self.roster[i].position:
+                    self.roster[j], self.roster[i] = self.roster[i], self.roster[j]
 
     def get_roster(self):
         return [i.surname for i in self.roster]
