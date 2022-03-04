@@ -5,11 +5,11 @@ import random
 
 class Match:
     def __init__(self):
-        pass
-
-    def get_match(self, Team):
         self.group = []
         self.match = []
+        self.winner = []
+
+    def get_match(self, Team):
         if type(Team) == list:
             self.group.extend(Team)
         else:
@@ -69,4 +69,3 @@ chelsea.add_players([werner, kai, cesar, mendy, silva, kepa, kante])
 
 bayern.add_players([lewa, muller, davies, neuer, sule, ulreich, kimmich])
 
-print(liga_champions.get_match(liga_champions(), [juventus, chelsea, bayern]))
