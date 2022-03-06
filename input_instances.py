@@ -97,3 +97,4 @@ liver.add_players([thiago, allison, firmino, salah, mane, trent, dijk])
 inter.add_players([dzeko, lautaro, hakan, skriniar, handanovic, vidal, barella])
 
 man_united.add_players([ronaldo, harry, lidelof, bruno, cavani, fred, de])
+

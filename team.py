@@ -31,5 +31,3 @@ class Team:
             return 'You forgot add players'
         return sum([i.default_score for i in self.roster])
 
-
-

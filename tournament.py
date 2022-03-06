@@ -21,9 +21,14 @@ class Tournament:
             self.groups['Group A'].append(random.choice(second_bucket))
             second_bucket.remove(self.groups['Group A'][i+1])
         self.groups['Group B'] = first_bucket + second_bucket
+
+    def get_groups(self):
         return [i.team for i in self.groups['Group A']], [i.team for i in self.groups['Group B']]
 
+    def create_playoff(self):
+        Match.get_match(Match(), [random.choice(self.groups['Group A']), random.choice(self.groups['Group B'])])
 
 liga_champions = Tournament
 print(liga_champions.create_groups(liga_champions(),[ip.barca, ip.juventus, ip.chelsea, ip.man_united, ip.inter, ip.bayern, ip.real,ip.liver]))
+print(liga_champions.create_playoff(liga_champions()))
 
