@@ -1,5 +1,3 @@
-from player import Player
-
 
 class Team:
 
@@ -19,8 +17,7 @@ class Team:
         [self.sorted_by_rating.extend(i) for i in self.sorted_by_position.values()]
         for i in range(len(self.sorted_by_rating)):
             for j in range(len(self.sorted_by_rating) - 1):
-                if self.sorted_by_rating[j].default_score > self.sorted_by_rating[i].default_score and self.sorted_by_rating[j].position == \
-                        self.sorted_by_rating[i].position:
+                if self.sorted_by_rating[j].default_score > self.sorted_by_rating[i].default_score and self.sorted_by_rating[j].position ==  self.sorted_by_rating[i].position:
                     self.sorted_by_rating[j], self.sorted_by_rating[i] = self.sorted_by_rating[i], self.sorted_by_rating[j]
 
     def get_roster(self):

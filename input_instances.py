@@ -58,7 +58,7 @@ cavani = Player('Cavani', 9, 'forward', 87)
 fred = Player('Fred', 6, 'midfielder', 88)
 harry = Player('Harry', 3, 'cb', 85)
 de = Player('De Gea', 1, 'goalkeeper', 90)
-lidelof = Player('Lindelof', 4, 'forward', 85)
+lindelof = Player('Lindelof', 4, 'forward', 85)
 
 man_united = Team('Manchester United')
 
@@ -96,5 +96,5 @@ liver.add_players([thiago, allison, firmino, salah, mane, trent, dijk])
 
 inter.add_players([dzeko, lautaro, hakan, skriniar, handanovic, vidal, barella])
 
-man_united.add_players([ronaldo, harry, lidelof, bruno, cavani, fred, de])
+man_united.add_players([ronaldo, harry, lindelof, bruno, cavani, fred, de])
 
