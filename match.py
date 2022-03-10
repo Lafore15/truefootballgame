@@ -1,5 +1,4 @@
-from team import Team
-from player import Player
+
 import random
 
 
@@ -7,14 +6,18 @@ class Match:
     def __init__(self):
         self.group = []
         self.match = []
-        self.winner = []
+        self.winner = ''
+        self.ratings = []
 
-    def get_match(self, Team):
-        if type(Team) == list:
-            self.group.extend(Team)
+    def get_match(self, teams, stadium='neutral'):
+        self.winner = ''
+        self.group.clear()
+        self.match.clear()
+        if type(teams) == list:
+            self.group.extend(teams)
         else:
             return 'please, enter teams in list'
-        if len(Team) > 2:
+        if len(teams) > 2:
             self.match.append(random.choice(self.group))
             self.match.append(random.choice(self.group))
             while self.match[0] == self.match[1]:
@@ -22,50 +25,28 @@ class Match:
                 self.match.append(random.choice(self.group))
         else:
             self.match.extend(self.group)
-        if self.match[0].get_final_score() > self.match[1].get_final_score():
+        first_score = self.match[0].get_final_score()
+        second_score = self.match[1].get_final_score()
+        if stadium[0] == 'h':
+            first_score += 50
+        elif stadium[0] == 'a':
+            second_score += 50
+        if random.randint(0, 101) < 91 and first_score > second_score:
             self.winner = self.match[0]
-        elif self.match[0].get_final_score() < self.match[1].get_final_score():
+        elif random.randint(0, 101) < 91 and first_score < second_score:
             self.winner = self.match[1]
-        else:
+        elif random.randint(0, 101) > 91 and first_score < second_score:
+            self.winner = self.match[1]
+        elif random.randint(0, 101) > 91 and first_score > second_score:
+            self.winner = self.match[0]
+        elif random.randint(0, 101) == 50:
             self.winner = 'Draw'
-        if self.winner != 'Draw':
-            return f'{self.match[0].team} versus {self.match[1].team}', 'WINNER ISSSSS......', self.winner.team
-        return f'{self.match[0].team} versus {self.match[1].team}', 'WINNER ISSSSS......', 'Nobody,today without winner'
+        if self.winner == 'Draw':
+            return f'{self.match[0].team} versus {self.match[1].team}', 'Draw'
+        return f'{self.match[0].team} versus {self.match[1].team}', 'WINNER IS...', self.winner.team
+
+    def get_winner(self):
+        return self.winner
 
 
-liga_champions = Match
-paulo = Player('paulo', 10, 'forward', 85)
-weston = Player('Weston', 14, 'midfielder', 84)
-danilo = Player('Danilo', 13, 'cb', 90)
-buffon = Player('Buffon', 1, 'goalkeeper', 100)
-leo = Player('Leonardo', 19, 'cb', 87)
-carlo = Player('Carlo', 99, 'goalkeeper', 99)
-zakaria = Player('Zakaria', 27, 'midfielder', 83)
-
-juventus = Team('Juventus')
-
-werner = Player('Werner', 11, 'forward', 85)
-kai = Player('Havertz', 29, 'midfielder', 87)
-cesar = Player('Azpilicueta', 28, 'cb', 95)
-mendy = Player('Mendy', 16, 'goalkeeper', 90)
-silva = Player('Silva', 6, 'cb', 95)
-kepa = Player('Kepa', 1, 'goalkeeper', 85)
-kante = Player('Kante', 7, 'midfielder', 99)
-
-chelsea = Team('Chelsea')
-
-lewa = Player('Lewandowski', 9, 'forward', 95)
-muller = Player('Muller', 25, 'midfielder', 94)
-davies = Player('Davies', 19, 'cb', 90)
-neuer = Player('Neuer', 1, 'goalkeeper', 90)
-sule = Player('Sule', 4, 'cb', 84)
-ulreich = Player('Ulreich', 26, 'goalkeeper', 80)
-kimmich = Player('kimmich', 6, 'midfielder', 95)
-
-bayern = Team('Bayern')
-juventus.add_players([paulo, danilo, weston, buffon, leo, carlo, zakaria])
-
-chelsea.add_players([werner, kai, cesar, mendy, silva, kepa, kante])
-
-bayern.add_players([lewa, muller, davies, neuer, sule, ulreich, kimmich])
 
