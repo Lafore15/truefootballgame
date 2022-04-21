@@ -6,298 +6,158 @@ import copy
 
 class Tournament:
     def __init__(self):
-        self.buckets = {'first bucket': [], 'second bucket': []}
-        self.groups = {'Group A': [], 'Group B': []}
-        self.history_of_games_a = []
-        self.history_of_games_b = []
-        self.points_a = {}
-        self.points_b = {}
+        self.buckets = {}
+        self.groups = {}
+        self.points = {}
+        self.all_points = {}
+        self.draw = 1
+        self.win = 3
 
     def create_groups(self, teams):
-        self.buckets['first bucket'] = copy.deepcopy(teams[:4])
-        self.buckets['second bucket'] = copy.deepcopy(teams[4:])
-        first_bucket = copy.deepcopy(self.buckets['first bucket'])
-        second_bucket = copy.deepcopy(self.buckets['second bucket'])
-        for i in range(0, 3, 2):
-            self.groups['Group A'].append(random.choice(first_bucket))
-            first_bucket.remove(self.groups['Group A'][i])
-            self.groups['Group A'].append(random.choice(second_bucket))
-            second_bucket.remove(self.groups['Group A'][i + 1])
-        self.groups['Group B'] = first_bucket + second_bucket
+        number_of_teams_in_bucket = ntb = 4
+        number_of_teams_in_group = ntg = 4
+        number_of_groups = ng = 2
+        buckets = list(copy.deepcopy(self.buckets).values())
+        count = 0
+        bucket = 1
+        group_name = chr(65)
+        for i in range(len(teams)):
+            count += 1
+            if count % ntb == 0 and count != len(teams):
+                self.buckets[bucket] = teams[count:(i+1+ntb)]
+                bucket += 1
+            elif count == 1:
+                self.buckets[bucket] = teams[:ntb]
+                bucket += 1
+        bucket = 0
+        buckets = list(copy.deepcopy(self.buckets).values())
+        teams = list(copy.deepcopy(self.groups).values())
+        groups = list(copy.deepcopy(self.groups).keys())
+        number_of_buckets = nb = len(list(self.buckets.keys()))
+        count = 0
+        for i in range(1, len(buckets) + 1):
+            if len(groups) < ng:
+                self.groups[chr(ord(group_name) + count)] = []
+                self.groups[chr(ord(group_name) + count)].append(random.choice(buckets))
+            # надо сделать брало из корзин по одной команде из каждой и удаляло оттуда, тем самым избежим повторок и объединять корзины не нужно!наверное
+        return self.buckets, self.groups
 
     def get_groups(self):
         return [i.team for i in self.groups['Group A']], [i.team for i in self.groups['Group B']]
 
     def play_groups(self):
-        self.points_a = {}
-        for team in self.groups['Group A']:
-            self.points_a[team] = 0
-        for i in range(len(self.groups['Group A']) * 2):
-            match = Match()
-            if i < len(self.groups['Group A']):
-                if i + 1 == len(self.groups['Group A']):
-                    match.get_match([self.groups['Group A'][i], self.groups['Group A'][0]], stadium='h')
-                    self.history_of_games_a.append(match.result)
+        def create_match(group, points, ha):
+            if len(points) == 0:
+                for i in group:
+                    points[i] = 0
+            draw = 1
+            win = 3
+            for i in range(len(group)):
+                match = Match()
+                if i + 1 == len(group):
+                    match.get_match([group[i], group[0]], stadium=ha)
                     if match.get_winner() is None:
-                        self.points_a[match.match[0]] += 1
-                        self.points_a[match.match[1]] += 1
+                        points[match.match[0]] += draw
+                        points[match.match[1]] += draw
                     else:
-                        self.points_a[match.get_winner()] += 3
+                        points[match.get_winner()] += win
                 else:
-                    match.get_match([self.groups['Group A'][i], self.groups['Group A'][i + 1]], stadium='h')
-                    self.history_of_games_a.append(match.result)
+                    match.get_match([group[i], group[i + 1]], stadium=ha)
                     if match.get_winner() is None:
-                        self.points_a[match.match[0]] += 1
-                        self.points_a[match.match[1]] += 1
+                        points[match.match[0]] += draw
+                        points[match.match[1]] += draw
                     else:
-                        self.points_a[match.get_winner()] += 3
+                        points[match.get_winner()] += win
                 del match
-            else:
-                if i-len(self.groups['Group A']) - 1 + 1 == len(self.groups['Group A']):
-                    match.get_match([self.groups['Group A'][i-len(self.groups['Group A']) - 1], self.groups['Group A'][0]], stadium='a')
-                    self.history_of_games_a.append(match.result)
+            return points
+
+        def create_match_2(group, points):
+            draw = 1
+            win = 3
+            for i in range(len(group)):
+                match = Match()
+                if i + 2 >= len(group):
+                    match.get_match([group[i], group[i + 2 - len(group)]], stadium='a')
                     if match.get_winner() is None:
-                        self.points_a[match.match[0]] += 1
-                        self.points_a[match.match[1]] += 1
+                        points[match.match[0]] += draw
+                        points[match.match[1]] += draw
                     else:
-                        self.points_a[match.get_winner()] += 3
+                        points[match.get_winner()] += win
                 else:
-                    match.get_match([self.groups['Group A'][i-len(self.groups['Group A']) - 1], self.groups['Group A'][i - len(self.groups['Group A'])]], stadium='a')
-                    self.history_of_games_a.append(match.result)
+                    match.get_match([group[i], group[i + 2]], stadium='h')
                     if match.get_winner() is None:
-                        self.points_a[match.match[0]] += 1
-                        self.points_a[match.match[1]] += 1
+                        points[match.match[0]] += draw
+                        points[match.match[1]] += draw
                     else:
-                        self.points_a[match.get_winner()] += 3
+                        points[match.get_winner()] += win
                 del match
-        for i in range(len(self.groups['Group A'])):
-            match = Match()
-            if i + 2 >= len(self.groups['Group A']):
-                match.get_match([self.groups['Group A'][i], self.groups['Group A'][i + 2 - len(self.groups['Group A'])]], stadium='h')
-                self.history_of_games_a.append(match.result)
-                if match.get_winner() is None:
-                    self.points_a[match.match[0]] += 1
-                    self.points_a[match.match[1]] += 1
-                else:
-                    self.points_a[match.get_winner()] += 3
-            else:
-                match.get_match([self.groups['Group A'][i], self.groups['Group A'][i + 2]], stadium='h')
-                self.history_of_games_a.append(match.result)
-                if match.get_winner() is None:
-                    self.points_a[match.match[0]] += 1
-                    self.points_a[match.match[1]] += 1
-                else:
-                    self.points_a[match.get_winner()] += 3
-            del match
-        self.points_b = {}
-        for team in self.groups['Group B']:
-            self.points_b[team] = 0
-        for i in range(len(self.groups['Group B']) * 2):
-            match = Match()
-            if i < len(self.groups['Group B']):
-                if i + 1 == len(self.groups['Group B']):
-                    match.get_match([self.groups['Group B'][i], self.groups['Group B'][0]], stadium='h')
-                    self.history_of_games_b.append(match.result)
-                    if match.get_winner() is None:
-                        self.points_b[match.match[0]] += 1
-                        self.points_b[match.match[1]] += 1
-                    else:
-                        self.points_b[match.get_winner()] += 3
-                else:
-                    match.get_match([self.groups['Group B'][i], self.groups['Group B'][i + 1]], stadium='h')
-                    self.history_of_games_b.append(match.result)
-                    if match.get_winner() is None:
-                        self.points_b[match.match[0]] += 1
-                        self.points_b[match.match[1]] += 1
-                    else:
-                        self.points_b[match.get_winner()] += 3
-                del match
-            else:
-                if i-len(self.groups['Group B']) - 1 + 1 == len(self.groups['Group B']):
-                    match.get_match([self.groups['Group B'][i-len(self.groups['Group B']) - 1], self.groups['Group B'][0]], stadium='a')
-                    self.history_of_games_b.append(match.result)
-                    if match.get_winner() is None:
-                        self.points_b[match.match[0]] += 1
-                        self.points_b[match.match[1]] += 1
-                    else:
-                        self.points_b[match.get_winner()] += 3
-                else:
-                    match.get_match([self.groups['Group B'][i-len(self.groups['Group B']) - 1], self.groups['Group B'][i - len(self.groups['Group B'])]], stadium='a')
-                    self.history_of_games_b.append(match.result)
-                    if match.get_winner() is None:
-                        self.points_b[match.match[0]] += 1
-                        self.points_b[match.match[1]] += 1
-                    else:
-                        self.points_b[match.get_winner()] += 3
-                del match
-        for i in range(len(self.groups['Group B'])):
-            match = Match()
-            if i + 2 >= len(self.groups['Group B']):
-                match.get_match([self.groups['Group B'][i], self.groups['Group B'][i + 2 - len(self.groups['Group B'])]], stadium='h')
-                self.history_of_games_b.append(match.result)
-                if match.get_winner() is None:
-                    self.points_b[match.match[0]] += 1
-                    self.points_b[match.match[1]] += 1
-                else:
-                    self.points_b[match.get_winner()] += 3
-            else:
-                match.get_match([self.groups['Group B'][i], self.groups['Group B'][i + 2]], stadium='h')
-                self.history_of_games_b.append(match.result)
-                if match.get_winner() is None:
-                    self.points_b[match.match[0]] += 1
-                    self.points_b[match.match[1]] += 1
-                else:
-                    self.points_b[match.get_winner()] += 3
-            del match
-        self.points_a = {k: v for k, v in sorted(self.points_a.items(), key=lambda item: item[1])}
-        self.points_b = {k: v for k, v in sorted(self.points_b.items(), key=lambda item: item[1])}
-        return self.points_a, self.points_b
+            return points
+        for i in self.groups.keys():
+            create_match(self.groups[i], self.points, 'h')
+            create_match(self.groups[i], self.points, 'a')
+            create_match_2(self.groups[i], self.points)
+            self.all_points[i] = copy.deepcopy(self.points)
+            self.points.clear()
+        for i in self.all_points.keys():
+            self.all_points[i] = {k: v for k, v in sorted(self.all_points[i].items(), key=lambda item: item[1])}
+        return self.all_points
 
     def create_playoff(self):
-        points_a = copy.deepcopy(self.points_a)
-        points_b = copy.deepcopy(self.points_a)
-        a = list(points_a.keys())
-        b = list(points_b.keys())
-        f_semi_final = []
-        s_semi_final = []
-        history_of_playoff_games = []
-        grand_final_teams = []
+        semifinals = []
+        history_of_playoff_games = hpg = []
+        grand_final_teams = gft = []
         grand_final = Match()
-        if [value for value in points_a.values()].count(max(points_a.values())) == 1:
-            f_semi_final.append(a[3])
-            del points_a[a[3]]
-        elif [value for value in points_a.values()].count(max(points_a.values())) == 2:
-            if a[3].get_final_score() > a[2].get_final_score():
-                f_semi_final.append(a[3])
-                del points_a[a[3]]
-            elif a[3].get_final_score() < a[2].get_final_score():
-                f_semi_final.append(a[2])
-                del points_a[a[2]]
-            else:
-                f_semi_final.append(random.choice([a[2], a[3]]))
-                del points_a[f_semi_final[0]]
-        elif [value for value in points_a.values()].count(max(points_a.values())) == 3:
-            if max([a[1].get_final_score(), a[2].get_final_score(), a[3].get_final_score()]) == a[1].get_final_score:
-                f_semi_final.append(a[1])
-                del points_a[a[1]]
-            elif max([a[1].get_final_score(), a[2].get_final_score(), a[3].get_final_score()]) == a[2].get_final_score:
-                f_semi_final.append(a[2])
-                del points_a[a[2]]
-            elif max([a[1].get_final_score(), a[2].get_final_score(), a[3].get_final_score()]) == a[3].get_final_score:
-                f_semi_final.append(a[3])
-                del points_a[a[3]]
-            else:
-                f_semi_final.append(random.choice([a[1], a[2], a[3]]))
-                del points_a[f_semi_final[0]]
 
-        if [value for value in points_b.values()].count(max(points_b.values())) == 1:
-            f_semi_final.append(b[3])
-            del points_b[b[3]]
-        elif [value for value in points_b.values()].count(max(points_b.values())) == 2:
-            if b[3].get_final_score() > b[2].get_final_score():
-                f_semi_final.append(b[3])
-                del points_b[b[3]]
-            elif b[3].get_final_score() < b[2].get_final_score():
-                f_semi_final.append(b[2])
-                del points_b[b[2]]
+        def playoffs(group):
+            teams = list(group.keys())
+            amount_of_max_points = amx = [value for value in group.values()].count(max(group.values()))
+            scores = [teams[-i].get_final_score() for i in range(1, amx + 1)]
+            max_score = max(scores)
+            max_score_index = scores.index(max_score)
+            if amx == 1:
+                semifinals.append(teams[-1])
+                del group[teams[-1]]
             else:
-                f_semi_final.append(random.choice([b[2], b[3]]))
-                del points_b[f_semi_final[1]]
-        elif [value for value in points_b.values()].count(max(points_b.values())) == 3:
-            if max([b[1].get_final_score(), b[2].get_final_score(), b[3].get_final_score()]) == b[1].get_final_score:
-                f_semi_final.append(b[1])
-                del points_b[b[1]]
-            elif max([b[1].get_final_score(), b[2].get_final_score(), b[3].get_final_score()]) == b[2].get_final_score:
-                f_semi_final.append(a[2])
-                del points_b[b[2]]
-            elif max([b[1].get_final_score(), b[2].get_final_score(), b[3].get_final_score()]) == b[3].get_final_score:
-                f_semi_final.append(b[3])
-                del points_b[b[3]]
-            else:
-                f_semi_final.append(random.choice([b[1], b[2], b[3]]))
-                del points_b[f_semi_final[1]]
+                semifinals.append(teams[max_score_index])
+                del group[teams[max_score_index]]
+            return group
+        for i in range(len(self.groups.keys())):
+            playoffs(self.all_points['Group A'])
+            playoffs(self.all_points['Group B'])
 
-        if [value for value in points_a.values()].count(max(points_a.values())) == 1:
-            s_semi_final.append(a[2])
-        elif [value for value in points_a.values()].count(max(points_a.values())) == 2:
-            if a[2].get_final_score() > a[1].get_final_score():
-                s_semi_final.append(a[2])
-            elif a[2].get_final_score() < a[1].get_final_score():
-                s_semi_final.append(a[1])
+        def final_stage(playoff_stage):
+            for i in range(0, len(playoff_stage), 2): # два раза одно и то же, надо исправить
+                match = Match()
+                match.get_match([playoff_stage[i], playoff_stage[i + 1]])
+                history_of_playoff_games.append(match.winner)
+                del match
+        final_stage(semifinals)
+        final_stage(semifinals)
+        for i in range(0, len(hpg), 2):
+            if hpg[i] != hpg[i+1]:
+                match = Match()
+                match.get_match([semifinals[i], semifinals[i + 1]])
+                if match.winner is None:
+                    match.winner = random.choice(match.match)
+                grand_final_teams.append(match.winner)
             else:
-                s_semi_final.append(random.choice([a[1], a[2]]))
-        elif [value for value in points_a.values()].count(max(points_a.values())) == 3:
-            if max([a[1].get_final_score(), a[2].get_final_score(), a[0].get_final_score()]) == a[0].get_final_score:
-                s_semi_final.append(a[0])
-            elif max([a[1].get_final_score(), a[2].get_final_score(), a[0].get_final_score()]) == a[1].get_final_score:
-                s_semi_final.append(a[1])
-            elif max([a[1].get_final_score(), a[2].get_final_score(), a[0].get_final_score()]) == a[2].get_final_score:
-                s_semi_final.append(a[2])
-            else:
-                s_semi_final.append(random.choice([a[0], a[1], a[2]]))
-
-        if [value for value in points_b.values()].count(max(points_b.values())) == 1:
-            s_semi_final.append(b[2])
-        elif [value for value in points_b.values()].count(max(points_b.values())) == 2:
-            if b[2].get_final_score() > b[1].get_final_score():
-                s_semi_final.append(b[2])
-            elif b[2].get_final_score() < b[1].get_final_score():
-                s_semi_final.append(b[1])
-            else:
-                s_semi_final.append(random.choice([b[1], b[2]]))
-        elif [value for value in points_b.values()].count(max(points_b.values())) == 3:
-            if max([b[0].get_final_score(), b[1].get_final_score(), b[2].get_final_score()]) == b[0].get_final_score:
-                s_semi_final.append(b[0])
-            elif max([b[0].get_final_score(), b[1].get_final_score(), b[2].get_final_score()]) == b[1].get_final_score:
-                s_semi_final.append(a[1])
-            elif max([b[0].get_final_score(), b[1].get_final_score(), b[2].get_final_score()]) == b[2].get_final_score:
-                s_semi_final.append(b[2])
-            else:
-                s_semi_final.append(random.choice([b[0], b[1], b[2]]))
-
-        for i in range(2):
-            match = Match()
-            match.get_match([f_semi_final[0], s_semi_final[1]])
-            history_of_playoff_games.append(match.winner)
-            del match
-        if history_of_playoff_games[0] != history_of_playoff_games[1]:
-            match = Match()
-            match.get_match([f_semi_final[0], s_semi_final[1]])
-            if match.winner is None:
-                match.winner = match.match[0]
-            grand_final_teams.append(match.winner)
-        else:
-            grand_final_teams.append(history_of_playoff_games[0])
-        history_of_playoff_games.clear()
-
-        for i in range(2):
-            match = Match()
-            match.get_match([f_semi_final[1], s_semi_final[0]])
-            history_of_playoff_games.append(match.winner)
-            del match
-        if history_of_playoff_games[0] != history_of_playoff_games[1]:
-            match = Match()
-            match.get_match([f_semi_final[1], s_semi_final[0]])
-            if match.winner is None:
-                match.winner = match.match[0]
-            grand_final_teams.append(match.winner)
-        else:
-            grand_final_teams.append(history_of_playoff_games[0])
-        grand_final = Match()
-        grand_final.get_match(grand_final_teams)
+                grand_final_teams.append(hpg[i])
+        hpg.clear()
+        grand_final.get_match(gft)
         champion = grand_final.winner
         while champion is None:
             del grand_final
             grand_final = Match()
             team = random.choice(grand_final.match).get_final_score()
             team += 5
-            grand_final.get_match(grand_final_teams)
+            grand_final.get_match(gft)
             champion = grand_final.winner
-        return f_semi_final, s_semi_final, champion
+        return semifinals, self.all_points, grand_final_teams, champion
 
 
 champions_league = Tournament()
-champions_league.create_groups([ip.juventus, ip.bayern, ip.inter, ip.man_united, ip.chelsea, ip.barca, ip.real, ip.liver])
-print(champions_league.get_groups())
-champions_league.play_groups()
-print(champions_league.create_playoff())
+print(champions_league.create_groups([ip.juventus, ip.bayern, ip.inter, ip.man_united, ip.chelsea, ip.barca, ip.real, ip.liver]))
+#print(champions_league.get_groups())
+#print(champions_league.play_groups())
+#print(champions_league.create_playoff())
+

@@ -1,30 +1,40 @@
-
+from player import Player
 class Team:
 
     def __init__(self, team):
         self.team = team
-        self.sorted_by_position = {'goalkeeper': [], 'cb': [], 'midfielder': [], 'forward': []}
+        self.sorted_by_position = self.sbp = {'goalkeeper': [], 'cb': [], 'midfielder': [], 'forward': []}
         self.roster = []
-        self.sorted_by_rating = []
+        self.sorted_by_rating = self.sbr = []
 
-    def add_players(self, Player):
-        if type(Player) == list:
-            self.roster.extend(Player)
+    def add_players(self, players):
+        self.roster.clear()
+        if type(players) == list:
+            self.roster.extend(players)
         else:
-            self.roster.append(Player)
+            self.roster.append(players)
         for i in self.roster:
-            self.sorted_by_position[i.position].append(i)
-        [self.sorted_by_rating.extend(i) for i in self.sorted_by_position.values()]
-        for i in range(len(self.sorted_by_rating)):
-            for j in range(len(self.sorted_by_rating) - 1):
-                if self.sorted_by_rating[j].default_score > self.sorted_by_rating[i].default_score and self.sorted_by_rating[j].position ==  self.sorted_by_rating[i].position:
-                    self.sorted_by_rating[j], self.sorted_by_rating[i] = self.sorted_by_rating[i], self.sorted_by_rating[j]
+            self.sbp[i.position].append(i)
+        [self.sbr.extend(i) for i in self.sbp.values()]
+        '''def quick_sort(s):
+            if len(s) <= 1:
+                return s
+            elem = s[0].default_score
+            left = list(filter(lambda x: x.default_score < elem, s))
+            center = [i for i in s if i.default_score == elem]
+            right = list(filter(lambda x: x.default_score > elem, s))
+            return quick_sort(left) + center + quick_sort(right)'''
+        for i in range(len(self.sbr)):
+            for j in range(len(self.sbr) - 1):
+                if self.sbr[j].default_score > self.sbr[i].default_score and self.sbr[j].position == self.sbr[i].position:
+                    self.sbr[j], self.sbr[i] = self.sbr[i], self.sbr[j]
 
     def get_roster(self):
-        return [i.surname for i in self.sorted_by_rating]
+        return [i.surname for i in self.sbr]
 
     def get_final_score(self):
-        if len(self.roster) == 0 :
+        if len(self.roster) == 0:
             return 'You forgot add players'
         return sum([i.default_score for i in self.roster])
+
 
