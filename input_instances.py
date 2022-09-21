@@ -1,6 +1,5 @@
 from player import Player
 from team import Team
-from match import Match
 
 paulo = Player('paulo', 10, 'forward', 85)
 weston = Player('Weston', 14, 'midfielder', 84)

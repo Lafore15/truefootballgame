@@ -1,4 +1,3 @@
-
 import random
 
 
@@ -9,6 +8,9 @@ class Match:
         self.winner = None
         self.ratings = []
         self.result = []
+
+    def __repr__(self):
+        return f'{self.match[0]}, {self.match[1]}'
 
     def get_match(self, teams, stadium='neutral'):
         self.group.clear()
@@ -50,10 +52,7 @@ class Match:
             self.result = self.match + [self.winner]
             if self.winner is None:
                 return f'{self.match[0].team} versus {self.match[1].team}', 'Draw'
-        return f'{self.match[0].team} versus {self.match[1].team}', 'WINNER IS...', self.winner.team
+        return self.match[0].team, self.match[1].team, self.winner.team
 
     def get_winner(self):
         return self.winner
-
-
-

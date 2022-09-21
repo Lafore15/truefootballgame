@@ -6,6 +6,8 @@ import copy
 
 class Tournament:
     def __init__(self):
+        self.champion = []
+        self.gft = []
         self.buckets = {}
         self.groups = {}
         self.points = {}
@@ -17,10 +19,8 @@ class Tournament:
         number_of_teams_in_bucket = ntb = 4
         number_of_teams_in_group = ntg = 4
         number_of_groups = ng = 2
-        buckets = list(copy.deepcopy(self.buckets).values())
         count = 0
         bucket = 1
-        group_name = chr(65)
         for i in range(len(teams)):
             count += 1
             if count % ntb == 0 and count != len(teams):
@@ -29,21 +29,18 @@ class Tournament:
             elif count == 1:
                 self.buckets[bucket] = teams[:ntb]
                 bucket += 1
-        bucket = 0
         buckets = list(copy.deepcopy(self.buckets).values())
-        teams = list(copy.deepcopy(self.groups).values())
-        groups = list(copy.deepcopy(self.groups).keys())
-        number_of_buckets = nb = len(list(self.buckets.keys()))
-        count = 0
-        for i in range(1, len(buckets) + 1):
-            if len(groups) < ng:
-                self.groups[chr(ord(group_name) + count)] = []
-                self.groups[chr(ord(group_name) + count)].append(random.choice(buckets))
-            # надо сделать брало из корзин по одной команде из каждой и удаляло оттуда, тем самым избежим повторок и объединять корзины не нужно!наверное
-        return self.buckets, self.groups
-
-    def get_groups(self):
-        return [i.team for i in self.groups['Group A']], [i.team for i in self.groups['Group B']]
+        for i in range(ng):
+            group_name = 'Group ' + chr(65 + i)
+            self.groups[group_name] = []
+            for j in range(ntg):
+                if j < len(buckets):
+                    self.groups[group_name].append(random.choice(buckets[j]))
+                    buckets[j].remove(self.groups[group_name][-1])
+                else:
+                    self.groups[group_name].append(random.choice(buckets[j - len(buckets)]))
+                    buckets[j - len(buckets)].remove(self.groups[group_name][-1])
+        return self.groups
 
     def play_groups(self):
         def create_match(group, points, ha):
@@ -126,7 +123,7 @@ class Tournament:
             playoffs(self.all_points['Group B'])
 
         def final_stage(playoff_stage):
-            for i in range(0, len(playoff_stage), 2): # два раза одно и то же, надо исправить
+            for i in range(0, len(playoff_stage), 2):
                 match = Match()
                 match.get_match([playoff_stage[i], playoff_stage[i + 1]])
                 history_of_playoff_games.append(match.winner)
@@ -152,12 +149,12 @@ class Tournament:
             team += 5
             grand_final.get_match(gft)
             champion = grand_final.winner
-        return semifinals, self.all_points, grand_final_teams, champion
+        self.gft = gft
+        self.champion = champion
+        return semifinals, grand_final_teams, champion
 
 
 champions_league = Tournament()
 print(champions_league.create_groups([ip.juventus, ip.bayern, ip.inter, ip.man_united, ip.chelsea, ip.barca, ip.real, ip.liver]))
-#print(champions_league.get_groups())
-#print(champions_league.play_groups())
-#print(champions_league.create_playoff())
-
+print(champions_league.play_groups())
+print(champions_league.create_playoff())

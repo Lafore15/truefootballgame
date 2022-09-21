@@ -5,6 +5,12 @@ class Player:
         self.position = position
         self.default_score = default_score
 
+    def __repr__(self):
+        return f'{self.surname} - {self.number}'
+
+    def __str__(self):
+        return f'{self.surname} - {self.number}'
+
     def set_score(self):
         score = int(input('Введите рейтинг: '))
         self.default_score = score
@@ -14,4 +20,3 @@ class Player:
 
     def get_info(self):
         return self.surname, f'Number is {self.number}', f"Rating is {self.default_score}"
-
